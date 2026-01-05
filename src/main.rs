@@ -1,4 +1,5 @@
 use crate::localization::*;
+use crate::tui::TUI;
 use std::env;
 use std::str::FromStr;
 use std::sync::OnceLock;
@@ -31,10 +32,16 @@ mod menu_impl;
 mod rest_api_impl;
 mod simple_argparse;
 
+/// Setup of the Terminal User Interface
+mod tui;
+
 static COLOR: OnceLock<ColorChoice> = OnceLock::new();
 
 fn main() -> Result<(), Report> {
     color_eyre::install()?;
+    let mut term = ratatui::init();
+    TUI::default().run(&mut term);
+    ratatui::restore();
 
     let (args, week_days) = argparse()?;
 
