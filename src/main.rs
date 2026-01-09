@@ -40,7 +40,7 @@ static COLOR: OnceLock<ColorChoice> = OnceLock::new();
 fn main() -> Result<(), Report> {
     color_eyre::install()?;
     let mut term = ratatui::init();
-    TUI::default().run(&mut term);
+    TUI::default().run(&mut term)?;
     ratatui::restore();
 
     let (args, week_days) = argparse()?;
