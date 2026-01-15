@@ -1,21 +1,12 @@
-use std::{
-    fmt::format,
-    usize::{self, MAX},
-};
-
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Rect},
-    text::Text,
-    widgets::{Block, Cell, Paragraph, Row, Table, Tabs, Widget},
+    text::Line,
+    widgets::{Block, Table, Tabs, Widget},
 };
 use time::{OffsetDateTime, Weekday};
 
-use crate::{
-    api_interactions::fetch_menus,
-    api_schema::{MensaMenu, Menu},
-    util::list_weekdays,
-};
+use crate::{api_schema::MensaMenu, util::list_weekdays};
 
 #[derive(Debug)]
 pub struct WeekdayWidget {
@@ -55,7 +46,11 @@ impl WeekdayWidget {
                 Constraint::Fill(1),
             ],
         )
-        .block(Block::bordered())
+        .block(
+            Block::bordered()
+                .title_bottom(Line::from(" <q> Quit "))
+                .title_bottom(Line::from(" <Tab> Switch Tab ").right_aligned()),
+        )
         .render(area, buf);
     }
 }

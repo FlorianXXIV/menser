@@ -3,11 +3,9 @@ use std::io;
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent},
     layout::{
-        self,
         Constraint::{Fill, Length},
         Layout,
     },
-    text::Text,
     widgets::{Block, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
@@ -74,8 +72,9 @@ impl Widget for &TUI {
     where
         Self: Sized,
     {
-        let layout = Layout::vertical([Length(1), Fill(1)]);
-        let [tabs, para] = layout.areas(area);
+        let layout = Layout::vertical([Length(2), Length(1), Fill(1)]);
+        let [title, tabs, para] = layout.areas(area);
+        Paragraph::new(APP_TITLE).centered().render(title, buf);
         self.weekday_w.render(tabs, buf);
         self.weekday_w.render_tabs(para, buf, &self.menues);
     }

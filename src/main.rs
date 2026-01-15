@@ -5,13 +5,13 @@ use std::str::FromStr;
 use std::sync::OnceLock;
 
 use cli_table::ColorChoice;
-use color_eyre::eyre::{bail, ContextCompat};
+use color_eyre::eyre::ContextCompat;
 use color_eyre::Report;
 
 use crate::api_interactions::fetch_menus;
 use crate::api_schema::{MensaMenu, Menu};
 use crate::constants::set_lower_threshold_int;
-use crate::simple_argparse::{argparse, WEEKDAYS};
+use crate::simple_argparse::argparse;
 use crate::table_formatting::{render_menus, render_meta};
 
 /// Structs serialized from JSON API to rust representation
