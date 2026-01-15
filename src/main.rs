@@ -17,8 +17,9 @@ use crate::table_formatting::{render_menus, render_meta};
 /// Structs serialized from JSON API to rust representation
 mod api_schema;
 
-/// Constants used everywhere
+/// Constants nd functions used everywhere
 mod constants;
+mod util;
 
 /// Formats and prints output-tables
 mod table_formatting;
@@ -51,7 +52,7 @@ fn main() -> Result<(), Report> {
     let (mut menus, day) = {
         let mut menu = None;
         for query_param in week_days {
-            let menus = fetch_menus(query_param)?;
+            let menus = fetch_menus(&query_param.to_string())?;
             if Menu::count_meals(menus.iter()) == 0 {
                 eprintln!("No food for {query_param}, picking next possible date");
                 continue;
@@ -84,7 +85,7 @@ fn main() -> Result<(), Report> {
         }
     });
 
-    render_meta(longest_meal_name, &day)?;
+    render_meta(longest_meal_name, &day.to_string())?;
 
     render_menus(menus, longest_meal_name, most_expensive_price)?;
     Ok(())

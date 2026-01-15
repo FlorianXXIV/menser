@@ -1,23 +1,92 @@
-use ratatui::widgets::{Paragraph, Tabs, Widget};
+use std::{
+    fmt::format,
+    usize::{self, MAX},
+};
+
+use ratatui::{
+    buffer::Buffer,
+    layout::{Constraint, Rect},
+    text::Text,
+    widgets::{Block, Cell, Paragraph, Row, Table, Tabs, Widget},
+};
 use time::{OffsetDateTime, Weekday};
 
+use crate::{
+    api_interactions::fetch_menus,
+    api_schema::{MensaMenu, Menu},
+    util::list_weekdays,
+};
+
+#[derive(Debug)]
 pub struct WeekdayWidget {
     current_weekday: Weekday,
-    selected_weekday: Weekday,
+    pub selected_weekday: Weekday,
 }
 
 impl WeekdayWidget {
-    /// Returns Vector of weekdays starting from the current weekday.
-    pub fn list_weekdays() -> Vec<String> {
-        OffsetDateTime::now_local()?.weekday()?;
+    pub fn new() -> WeekdayWidget {
+        let today = match OffsetDateTime::now_local() {
+            Ok(it) => it,
+            Err(_) => OffsetDateTime::now_utc(),
+        }
+        .weekday();
+        WeekdayWidget {
+            current_weekday: today,
+            selected_weekday: today,
+        }
+    }
+
+    pub fn sel_next(&mut self) {
+        self.selected_weekday = self.selected_weekday.next();
+    }
+
+    pub fn render_tabs(&self, area: Rect, buf: &mut Buffer, mensa_menu: &Vec<MensaMenu>) {
+        let mut rows = Vec::new();
+        for mensa in mensa_menu {
+            rows.append(&mut mensa.to_table_rows());
+        }
+        Table::new(
+            rows,
+            [
+                Constraint::Fill(1),
+                Constraint::Fill(1),
+                Constraint::Fill(1),
+                Constraint::Fill(1),
+                Constraint::Fill(1),
+            ],
+        )
+        .block(Block::bordered())
+        .render(area, buf);
     }
 }
 
-impl Widget for WeekdayWidget {
+impl Widget for &WeekdayWidget {
     fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer)
     where
         Self: Sized,
     {
-        Tabs::new(titles)
+        let weekdays = list_weekdays(self.current_weekday);
+        let mut i = 0;
+        for day in &weekdays {
+            if day != &self.selected_weekday {
+                i += 1;
+            } else {
+                break;
+            }
+        }
+
+        Tabs::new(
+            list_weekdays(self.current_weekday)
+                .iter()
+                .map(|w| w.to_string()),
+        )
+        .select(Some(i as usize))
+        .render(area, buf);
+    }
+}
+
+impl Default for WeekdayWidget {
+    fn default() -> Self {
+        WeekdayWidget::new()
     }
 }

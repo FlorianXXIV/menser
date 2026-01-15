@@ -48,7 +48,7 @@ pub fn render_menus(
 
         for (opening_hours, meals) in grouped_by_daytime
             .into_iter()
-            .sorted_unstable_by_key(|e|e.0.clone())
+            .sorted_unstable_by_key(|e| e.0.clone())
             .rev()
         {
             let fmt_meals = |meal: &&Meal| {

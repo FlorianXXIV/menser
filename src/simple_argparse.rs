@@ -1,10 +1,11 @@
 use crate::constants::{set_lower_threshold_int, set_upper_threshold_int, DEFAULT_PRICE_THRESHOLD};
+use crate::util::list_weekdays;
+use color_eyre::eyre::bail;
 use std::env;
 use std::str::FromStr;
-use color_eyre::eyre::bail;
 use time::Weekday;
 
-pub const WEEKDAYS: &[&'static str] =  &[
+pub const WEEKDAYS: &[&'static str] = &[
     "monday",
     "tuesday",
     "wednesday",
@@ -20,7 +21,7 @@ pub struct Args {
     pub weekday: Option<Weekday>,
 }
 
-pub fn argparse() -> color_eyre::Result<(Args, Vec<&'static str>)> {
+pub fn argparse() -> color_eyre::Result<(Args, Vec<Weekday>)> {
     let mut args = Args::default();
     let raw_args = env::args();
 
@@ -42,21 +43,17 @@ pub fn argparse() -> color_eyre::Result<(Args, Vec<&'static str>)> {
 
     let today = time::OffsetDateTime::now_local()?.weekday();
 
-    let current_day = if args.tomorrow { today.next() } else { args.weekday.unwrap_or(today) }
-        .to_string()
-        .to_lowercase();
+    let current_day = if args.tomorrow {
+        today.next()
+    } else {
+        args.weekday.unwrap_or(today)
+    };
 
-    if !WEEKDAYS.contains(&current_day.as_str()) {
+    if !WEEKDAYS.contains(&current_day.to_string().to_lowercase().as_str()) {
         bail!("Unknown weekday argument");
     }
 
-    let week_days = WEEKDAYS
-        .into_iter()
-        .cycle()
-        .skip_while(|day| *day != &current_day)
-        .take(7)
-        .map(|e|*e)
-        .collect::<Vec<&'static str>>();
+    let week_days = list_weekdays(current_day);
 
     Ok((args, week_days))
 }
